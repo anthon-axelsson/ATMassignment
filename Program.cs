@@ -1,126 +1,119 @@
-﻿using System.Reflection.Metadata;
+﻿using WestcoastBank;
 
-namespace testings;
+namespace ATM;
 
 class Program
 {
-    static int balance = 0;
-    static bool isRunning = true;
-    static List<string> history = new List<string>();
+    // static Account account = new Account("1234-5678");
+    static Account account = new("1234-5678") { };
+
+    // static Account account = new() { accountNumber = "1234-5678" };
+
     static void Main()
     {
-        while (isRunning == true)
+        account.FirstName = "Michael";
+        // Här är vår enkla meny...
+        Console.WriteLine("--------------------------------------------------");
+        Console.WriteLine("För att sätta in tryck på tangenten 'd'");
+        Console.WriteLine("För att ta ut tryck på tangenten 'w'");
+        Console.WriteLine("För att se saldo tryck på tangenten 'b'");
+        Console.WriteLine("För att se transaktionerna tryck på tangenten 't'");
+        Console.WriteLine("För att avsluta tryck på tangenten 'x'");
+        Console.WriteLine("--------------------------------------------------");
+
+        App();
+    }
+
+    static void App()
+    {
+        try
         {
-            try
+            while (true)
             {
-                Console.WriteLine("--------------------------------------");
-                Console.WriteLine("To make a deposit press 'd'");
-                Console.WriteLine("To make a withdrawal press 'w'");
-                Console.WriteLine("To show transaction history 't'");
-                Console.WriteLine("To check balance press 'b'");
-                Console.WriteLine("To end session press 'x'");
-                Console.WriteLine("--------------------------------------");
-
-
                 var key = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(key) || key == "x")
+                {
+                    Environment.Exit(0);
+                }
 
                 switch (key)
                 {
                     case "b":
-                        ShowBalance();
+                        DisplayBalance();
+                        break;
+                    case "t":
+                        DisplayTransactions();
                         break;
                     case "d":
-                        HandleDeposit();
+                        Console.WriteLine("Hur mycket vill du sätta in?");
+                        var amount = Console.ReadLine();
+
+                        if (string.IsNullOrWhiteSpace(amount))
+                        {
+                            throw new Exception("Du måste ange ett heltalsvärde");
+                        }
+
+                        if (!int.TryParse(amount, out int result))
+                        {
+                            throw new Exception("Du måste ange ett heltalsvärde för att jag ska kunna förstå!");
+                        }
+                        Deposit(result);
                         break;
                     case "w":
-                        HandleWithdrawal();
-                        break;
+                        Console.WriteLine("Hur mycket vill du ta ut?");
+                        amount = Console.ReadLine();
 
-                    case "t":
-                        History();
+                        if (string.IsNullOrWhiteSpace(amount))
+                        {
+                            throw new Exception("Du måste ange ett heltalsvärde");
+                        }
+
+                        if (!int.TryParse(amount, out int value))
+                        {
+                            throw new Exception("Du måste ange ett heltalsvärde för att jag ska kunna förstå!");
+                        }
+                        WithDraw(value);
                         break;
-                    
                     case "x":
-                        Console.WriteLine("Thank you for using the banking service. Goodbye!");
-                        isRunning = false;
+                        Environment.Exit(0);
                         break;
-
                     default:
-                        throw new Exception("Invalid option! Please enter 'd', 'w', 't', 'b', or 'x'.");
+                        Console.WriteLine("Ditt val finns inte i menyn");
+                        break;
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[Error]: {ex.Message}");        
-            }   
-        } 
-    }
-
-    static void ShowBalance()
-    {
-        Console.WriteLine($"Your balance now is: {balance}");
-    }
-
-    static void HandleDeposit()
-    {
-        Console.WriteLine("How much do you want to Deposit?");
-        var input = Console.ReadLine();
-
-        if (!int.TryParse(input, out int amount) || amount <= 0)
-        {
-            throw new Exception("You must enter a positive integer to make a deposit.");
         }
-
-        Deposit(amount);
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            App();
+        }
+        finally
+        {
+            Console.WriteLine("Klar för idag, nu är det fredag!");
+        }
     }
 
     static void Deposit(int amount)
     {
-        balance += amount;
-        history.Add($"{DateTime.Now} Deposit: +{amount} sek");
-        Console.WriteLine($"You deposited +{amount} sek");
+        account.Deposit(amount);
     }
 
-    static void HandleWithdrawal()
+    static void WithDraw(int amount)
     {
-        Console.WriteLine("How much do you want to withdraw?");
-        var input = Console.ReadLine();
-
-        if (!int.TryParse(input, out int amount) || amount <= 0)
-        {
-            throw new Exception("You must enter a positive integer to make a withdrawal.");
-        }
-
-        Withdraw(amount);
+        account.WithDraw(amount);
+    }
+    static void DisplayBalance()
+    {
+        Console.WriteLine($"Ditt nuvarande saldo: {account.Balance}");
     }
 
-
-    static void Withdraw(int amount)
+    static void DisplayTransactions()
     {
-        if (balance < amount)
+        foreach (var tran in account.Transactions)
         {
-            throw new Exception($"Insufficient funds! You only have {balance} sek.");
-        }
-
-        balance -= amount;
-        history.Add($"{DateTime.Now} Withdrawal: -{amount} sek");
-        Console.WriteLine($"You withdrew -{amount} sek");
-    }
-
-    static void History()
-    {
-        if (history.Count == 0)
-        {
-            Console.WriteLine("No transactions have been done");
-        }
-        else
-        {
-            foreach (var record in history)
-            {
-                Console.WriteLine(record);
-            }
+            Console.WriteLine(tran.ToString());
         }
     }
 }
-
-// felhantering, aldrig gå ut ur while loop
