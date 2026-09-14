@@ -1,15 +1,10 @@
 ﻿namespace WestcoastBank;
 
-enum TransactionTypeEnum
-{
-    Insättning,
-    Uttag
-}
 
-class Account(string accountNo) // Konstruktorn är flyttad som ett argument
+
+public class Account(string accountNo)
 {
-    // Autoimplemented Properties
-    public int Balance { get; private set; }
+    public virtual int Balance { get; private set; }
     public string AccountNumber { get; } = accountNo;
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
@@ -40,16 +35,5 @@ class Account(string accountNo) // Konstruktorn är flyttad som ett argument
             TransactionType = type
         };
         Transactions.Add(tran);
-    }
-}
-
-class Transaction
-{
-    public DateTime TransactionDate { get; } = DateTime.Now;
-    public TransactionTypeEnum TransactionType { get; set; }
-    public int TransactionAmount { get; set; }
-    public override string ToString()
-    {
-        return $"Transaktionsdatum: {TransactionDate} Transaktionstyp: {TransactionType} Belopp: {TransactionAmount}";
     }
 }
